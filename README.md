@@ -1,239 +1,217 @@
 # Quantum-Enhanced Deep Reinforcement Learning for CBDC Liquidity Management
 
-A production-grade implementation of Quantum-Enhanced Soft Actor-Critic (QSAC) for optimizing Central Bank Digital Currency liquidity management under stress scenarios.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18666885.svg)](https://doi.org/10.5281/zenodo.18666885)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](requirements.txt)
+[![PennyLane](https://img.shields.io/badge/PennyLane-Quantum-purple.svg)](requirements.txt)
+[![MLflow](https://img.shields.io/badge/MLflow-Tracking-blue.svg)](logs/mlruns)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A production-grade implementation of **Quantum-Enhanced Soft Actor-Critic (QSAC)** for optimizing Central Bank Digital Currency liquidity management under stress scenarios. Integrates Variational Quantum Circuits (VQC) into the SAC algorithm to optimize commercial bank funding strategies under CBDC-induced liquidity shocks.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Configuration](#configuration)
+- [Environment](#environment)
+- [Quantum Architecture](#quantum-architecture)
+- [Results](#results)
+- [Advanced Usage](#advanced-usage)
+- [Monitoring](#monitoring)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+
+---
 
 ## Overview
 
-This project implements a hybrid quantum-classical reinforcement learning framework that integrates Variational Quantum Circuits (VQC) into the Soft Actor-Critic algorithm to optimize commercial bank funding strategies under CBDC-induced liquidity stress.
+| Feature                        | Description                                                              |
+| :----------------------------- | :----------------------------------------------------------------------- |
+| **Quantum-Enhanced SAC**       | Hybrid quantum-classical critic with 4-qubit Variational Quantum Circuit |
+| **Realistic CBDC Environment** | Stochastic liquidity dynamics with jump-diffusion CBDC shocks            |
+| **Regulatory Constraints**     | LCR enforcement and capital adequacy requirements                        |
+| **Benchmarking**               | Classical SAC, QSAC, and rule-based baselines                            |
+| **Statistical Validation**     | Paired t-tests, bootstrap CI, Wilcoxon tests                             |
+| **Reproducibility**            | Fixed seeds, MLflow tracking, deterministic training                     |
 
-## Key Features
-
-- **Quantum-Enhanced SAC**: Hybrid quantum-classical critic network with 4-qubit VQC
-- **Realistic CBDC Environment**: Stochastic liquidity dynamics with jump-diffusion CBDC shocks
-- **Regulatory Constraints**: LCR enforcement and capital adequacy requirements
-- **Comprehensive Benchmarking**: Classical SAC, QSAC, and rule-based baselines
-- **Statistical Validation**: Paired t-tests, bootstrap CI, Wilcoxon tests
-- **Full Reproducibility**: Fixed seeds, MLflow tracking, deterministic training
-
-## Installation
-
-### Prerequisites
-
-- Python 3.10+
-- CUDA-capable GPU (optional, recommended)
-
-### Setup
-
-```bash
-# Clone or extract the project
-cd Quantum-Enhanced-Deep-RL-for-CBDC-Optimization
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install project in editable mode
-pip install -e .
-```
+---
 
 ## Quick Start
 
-### 1. Train All Models
+### Installation
 
 ```bash
-# Run complete experimental suite (Classical SAC, QSAC, Rule-based)
-python experiments/run_all_experiments.py
+cd Quantum-Enhanced-Deep-RL-for-CBDC-Optimization
+
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
 ```
 
-This will:
-
-- Train Classical SAC for 1M steps
-- Train QSAC for 1M steps
-- Evaluate rule-based baseline
-- Generate comparison metrics
-- Save results to `logs/`
-
-### 2. Train Individual Models
+### Training
 
 ```bash
-# Train Classical SAC
-python training/train_sac.py --config configs/sac.yaml
+# Full experimental suite (Classical SAC, QSAC, rule-based)
+python experiments/run_all_experiments.py
 
-# Train Quantum-Enhanced SAC
+# Individual models
+python training/train_sac.py --config configs/sac.yaml
 python training/train_qsac.py --config configs/qsac.yaml
 ```
 
-### 3. Evaluate Trained Models
+### Evaluation and Analysis
 
 ```bash
-# Evaluate all models
 python training/evaluate.py --model_dir logs/trained_models/
-```
-
-### 4. Run Ablation Studies
-
-```bash
 python experiments/ablation_studies.py
-```
-
-### 5. Statistical Testing
-
-```bash
 python experiments/statistical_tests.py
-```
 
-### 6. Analyze Results
-
-```bash
-# Launch Jupyter notebook
 jupyter notebook notebooks/results_analysis.ipynb
 ```
+
+---
 
 ## Project Structure
 
 ```
 Quantum-Enhanced-Deep-RL-for-CBDC-Optimization/
-│
-├── README.md                   # This file
-├── requirements.txt            # Python dependencies
-├── setup.py                    # Package installation
-│
-├── configs/                    # Configuration files
-│   ├── default.yaml           # Default parameters
-│   ├── sac.yaml               # Classical SAC config
-│   ├── qsac.yaml              # Quantum SAC config
-│   └── environment.yaml       # Environment parameters
-│
+├── configs/                    # YAML configuration files
+│   ├── default.yaml            # Shared parameters and seeds
+│   ├── sac.yaml                # Classical SAC hyperparameters
+│   ├── qsac.yaml               # Quantum SAC hyperparameters
+│   └── environment.yaml        # Environment dynamics and constraints
 ├── env/                        # CBDC Liquidity Environment
-│   ├── cbdc_env.py            # Gymnasium environment
-│   ├── liquidity_dynamics.py # Stochastic processes
-│   ├── constraints.py         # LCR and capital constraints
-│   └── reward.py              # Reward function
-│
+│   ├── cbdc_env.py             # Gymnasium environment
+│   ├── liquidity_dynamics.py   # Stochastic processes
+│   ├── constraints.py          # LCR and capital constraints
+│   └── reward.py               # Reward function
 ├── models/                     # Neural network models
-│   ├── actor.py               # SAC actor network
-│   ├── critic_classical.py    # Classical critic
-│   ├── critic_quantum.py      # Quantum-enhanced critic
-│   ├── vqc.py                 # Variational Quantum Circuit
-│   └── sac_agent.py           # SAC algorithm implementation
-│
-├── training/                   # Training scripts
-│   ├── train_sac.py           # Train classical SAC
-│   ├── train_qsac.py          # Train quantum SAC
-│   ├── evaluate.py            # Model evaluation
-│   └── replay_buffer.py       # Experience replay
-│
-├── baselines/                  # Baseline policies
-│   └── rule_based_policy.py   # Rule-based benchmark
-│
-├── experiments/                # Experimental suite
-│   ├── run_all_experiments.py # Run all experiments
-│   ├── ablation_studies.py    # Ablation analysis
-│   └── statistical_tests.py   # Statistical validation
-│
-├── logs/                       # Experiment logs (generated)
-│   ├── mlruns/                # MLflow tracking
-│   ├── trained_models/        # Model checkpoints
-│   ├── metrics/               # CSV metrics
-│   └── plots/                 # Generated figures
-│
-├── notebooks/                  # Analysis notebooks
-│   └── results_analysis.ipynb # Results visualization
-│
-└── tests/                      # Unit tests
+│   ├── actor.py                # SAC actor network
+│   ├── critic_classical.py     # Classical critic
+│   ├── critic_quantum.py       # Quantum-enhanced critic
+│   ├── vqc.py                  # Variational Quantum Circuit
+│   └── sac_agent.py            # SAC algorithm
+├── training/                   # Training and evaluation scripts
+│   ├── train_sac.py
+│   ├── train_qsac.py
+│   ├── evaluate.py
+│   └── replay_buffer.py
+├── baselines/
+│   └── rule_based_policy.py
+├── experiments/
+│   ├── run_all_experiments.py
+│   ├── ablation_studies.py
+│   └── statistical_tests.py
+├── logs/                       # Generated outputs
+│   ├── mlruns/                 # MLflow tracking
+│   ├── trained_models/         # Model checkpoints
+│   ├── metrics/                # CSV metrics
+│   └── plots/                  # Figures
+├── notebooks/
+│   └── results_analysis.ipynb
+└── tests/
     ├── test_environment.py
     ├── test_vqc.py
     └── test_sac.py
 ```
 
+---
+
 ## Configuration
 
-All hyperparameters are managed via YAML configs in `configs/`:
+All hyperparameters are managed via YAML configs in `configs/`. Edit these files to customize experiments.
 
-- `default.yaml`: Shared parameters (seeds, logging, etc.)
-- `sac.yaml`: Classical SAC hyperparameters
-- `qsac.yaml`: Quantum SAC hyperparameters (qubits, layers, etc.)
-- `environment.yaml`: Environment dynamics and constraints
-
-Edit these files to customize experiments.
-
-## Reproducibility
-
-All experiments use fixed random seeds for reproducibility:
-
-```python
-SEED = 42  # Set in configs/default.yaml
-```
+| File               | Purpose                                      |
+| :----------------- | :------------------------------------------- |
+| `default.yaml`     | Shared parameters, seeds, logging            |
+| `sac.yaml`         | Classical SAC hyperparameters                |
+| `qsac.yaml`        | Quantum SAC hyperparameters (qubits, layers) |
+| `environment.yaml` | Environment dynamics and constraints         |
 
 To reproduce paper results exactly:
 
 ```bash
-# Run with default seed
-python experiments/run_all_experiments.py
-
-# Results will match published metrics within statistical variance
+python experiments/run_all_experiments.py  # uses SEED = 42 from default.yaml
 ```
 
-## Key Results
+---
 
-Expected performance improvements (QSAC vs Classical SAC):
-
-- **Funding Cost Reduction**: ~8-12%
-- **LCR Violation Reduction**: ~15-20%
-- **Stability Index**: +10-15%
-- **Statistical Significance**: p < 0.01 (paired t-test)
-
-See `notebooks/results_analysis.ipynb` for detailed analysis.
-
-## Environment Details
+## Environment
 
 ### State Space (8D)
 
-1. Current liquidity buffer
-2. Short-term liabilities
-3. Projected inflows
-4. Projected outflows
-5. Interbank funding rate
-6. CBDC demand shock
-7. Market volatility proxy
-8. Previous action
+| Index | Variable                 |
+| :---- | :----------------------- |
+| 1     | Current liquidity buffer |
+| 2     | Short-term liabilities   |
+| 3     | Projected inflows        |
+| 4     | Projected outflows       |
+| 5     | Interbank funding rate   |
+| 6     | CBDC demand shock        |
+| 7     | Market volatility proxy  |
+| 8     | Previous action          |
 
-### Action Space (3D - Continuous)
+### Action Space (3D, Continuous)
 
-1. Borrow amount [0, max_borrow]
-2. Liquid asset reallocation ratio [0, 1]
-3. Emergency funding decision [0, 1]
+| Index | Variable                        | Range           |
+| :---- | :------------------------------ | :-------------- |
+| 1     | Borrow amount                   | [0, max_borrow] |
+| 2     | Liquid asset reallocation ratio | [0, 1]          |
+| 3     | Emergency funding decision      | [0, 1]          |
 
 ### Stochastic Dynamics
 
-- **Inflows/Outflows**: Geometric Brownian Motion
-- **Funding Rates**: Ornstein-Uhlenbeck process
-- **CBDC Shocks**: Jump-diffusion with Poisson arrivals
+| Process            | Model                                |
+| :----------------- | :----------------------------------- |
+| Inflows / Outflows | Geometric Brownian Motion            |
+| Funding Rates      | Ornstein-Uhlenbeck process           |
+| CBDC Shocks        | Jump-diffusion with Poisson arrivals |
 
 ### Constraints
 
-- **LCR**: Liquidity Coverage Ratio ≥ 100%
-- **Capital Adequacy**: Minimum capital buffer
-- **Penalties**: Cost penalties for constraint violations
+- **LCR:** Liquidity Coverage Ratio must remain at or above 100%
+- **Capital Adequacy:** Minimum capital buffer enforced
+- **Penalties:** Cost penalties applied for constraint violations
+
+---
 
 ## Quantum Architecture
 
 ### VQC Design
 
-- **Qubits**: 4 qubits (configurable)
-- **Encoding**: RY rotation encoding
-- **Entanglement**: CNOT ring topology
-- **Parameterized Layers**: 2 layers of RY-RZ rotations
-- **Measurement**: Pauli-Z expectation values
-- **Backend**: PennyLane default.qubit (CPU) or qiskit (GPU)
+| Parameter            | Value                                         |
+| :------------------- | :-------------------------------------------- |
+| Qubits               | 4 (configurable)                              |
+| Encoding             | RY rotation encoding                          |
+| Entanglement         | CNOT ring topology                            |
+| Parameterized Layers | 2 layers of RY-RZ rotations                   |
+| Measurement          | Pauli-Z expectation values                    |
+| Backend              | PennyLane default.qubit (CPU) or Qiskit (GPU) |
 
 ### Noise Mitigation
 
 - Zero Noise Extrapolation (ZNE) for hardware noise
-- Configurable noise injection for testing robustness
+- Configurable noise injection for robustness testing
+
+---
+
+## Results
+
+Expected performance improvements of QSAC vs Classical SAC:
+
+| Metric                   | Improvement              |
+| :----------------------- | :----------------------- |
+| Funding Cost Reduction   | 8-12%                    |
+| LCR Violation Reduction  | 15-20%                   |
+| Stability Index          | +10-15%                  |
+| Statistical Significance | p < 0.01 (paired t-test) |
+
+See `notebooks/results_analysis.ipynb` for full analysis.
+
+---
 
 ## Advanced Usage
 
@@ -243,11 +221,9 @@ See `notebooks/results_analysis.ipynb` for detailed analysis.
 from training.train_qsac import train_qsac
 from hydra import compose, initialize
 
-# Initialize Hydra config
 initialize(config_path="../configs", version_base=None)
 cfg = compose(config_name="qsac")
 
-# Train with custom parameters
 train_qsac(cfg, n_steps=2000000, eval_freq=10000)
 ```
 
@@ -267,102 +243,49 @@ env = CBDCLiquidityEnv(
 ### Load Trained Model
 
 ```python
-import torch
 from models.sac_agent import SACAgent
 
-# Load QSAC model
 agent = SACAgent.load("logs/trained_models/qsac_final.pt")
 
-# Evaluate
 obs, _ = env.reset()
 done = False
-total_reward = 0
-
 while not done:
     action = agent.select_action(obs, deterministic=True)
     obs, reward, done, truncated, info = env.step(action)
-    total_reward += reward
 ```
 
-## Testing
-
-Run unit tests:
+### Testing
 
 ```bash
-# Test environment
-pytest tests/test_environment.py -v
-
-# Test VQC
-pytest tests/test_vqc.py -v
-
-# Test SAC agent
-pytest tests/test_sac.py -v
-
-# Run all tests
 pytest tests/ -v
 ```
 
+---
+
 ## Monitoring
 
-### MLflow UI
-
 ```bash
-# Start MLflow server
+# MLflow UI
 mlflow ui --backend-store-uri logs/mlruns
+# Open http://localhost:5000
 
-# Open browser at http://localhost:5000
-```
-
-### TensorBoard (optional)
-
-```bash
+# TensorBoard (optional)
 tensorboard --logdir logs/tensorboard
 ```
 
-## Performance Optimization
-
-### GPU Acceleration
-
-```python
-# Automatically uses CUDA if available
-# Force CPU:
-export CUDA_VISIBLE_DEVICES=""
-
-# Select specific GPU:
-export CUDA_VISIBLE_DEVICES=0
-```
-
-### Parallel Evaluation
-
-```python
-# In configs/default.yaml
-n_eval_envs: 8  # Vectorized environments for faster evaluation
-```
+---
 
 ## Troubleshooting
 
-### Common Issues
+| Issue                   | Fix                                                                      |
+| :---------------------- | :----------------------------------------------------------------------- |
+| PennyLane install fails | `pip install pennylane --no-cache-dir`                                   |
+| CUDA out of memory      | Reduce `batch_size` or `n_qubits` in config                              |
+| Slow training           | Enable GPU, reduce circuit depth, or use classical SAC for iteration     |
+| Numerical instability   | Adjust learning rates, increase `target_entropy`, normalize observations |
 
-1. **PennyLane installation fails**
-
-   ```bash
-   pip install pennylane --no-cache-dir
-   ```
-
-2. **CUDA out of memory**
-   - Reduce batch_size in config
-   - Reduce n_qubits in qsac.yaml
-
-3. **Slow training**
-   - Enable GPU acceleration
-   - Reduce quantum circuit depth
-   - Use classical SAC for faster iteration
-
-4. **Numerical instability**
-   - Adjust learning rates in config
-   - Increase target_entropy for more exploration
-   - Normalize observations
+---
 
 ## License
 
-MIT License - see LICENSE file for details
+Licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
