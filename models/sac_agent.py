@@ -250,18 +250,22 @@ class SACAgent:
 
     def save(self, path: str):
         """Save agent to file."""
-        torch.save(
-            {
-                "actor_state_dict": self.actor.state_dict(),
-                "critic_state_dict": self.critic.state_dict(),
-                "critic_target_state_dict": self.critic_target.state_dict(),
-                "actor_optimizer_state_dict": self.actor_optimizer.state_dict(),
-                "critic_optimizer_state_dict": self.critic_optimizer.state_dict(),
-                "log_alpha": self.log_alpha,
-                "alpha": self.alpha,
-            },
-            path,
-        )
+
+        checkpoint = {
+            "actor_state_dict": self.actor.state_dict(),
+            "critic_state_dict": self.critic.state_dict(),
+            "critic_target_state_dict": self.critic_target.state_dict(),
+            "actor_optimizer_state_dict": self.actor_optimizer.state_dict(),
+            "critic_optimizer_state_dict": self.critic_optimizer.state_dict(),
+            "alpha": self.alpha,
+            "auto_entropy_tuning": self.auto_entropy_tuning,
+        }
+
+        if self.auto_entropy_tuning and self.log_alpha is not None:
+            checkpoint["log_alpha_value"] = self.log_alpha.item()
+            checkpoint["alpha_optimizer_state_dict"] = self.alpha_optimizer.state_dict()
+
+        torch.save(checkpoint, path)
 
     @classmethod
     def load(
@@ -282,8 +286,17 @@ class SACAgent:
             checkpoint["critic_optimizer_state_dict"]
         )
 
-        if agent.auto_entropy_tuning:
-            agent.log_alpha = checkpoint["log_alpha"]
+        if agent.auto_entropy_tuning and "log_alpha_value" in checkpoint:
+            agent.log_alpha = torch.tensor(
+                [checkpoint["log_alpha_value"]], requires_grad=True, device=device
+            )
+            agent.alpha = float(torch.exp(agent.log_alpha).item())
+            if "alpha_optimizer_state_dict" in checkpoint:
+                agent.alpha_optimizer = torch.optim.Adam([agent.log_alpha], lr=3e-4)
+                agent.alpha_optimizer.load_state_dict(
+                    checkpoint["alpha_optimizer_state_dict"]
+                )
+        elif "alpha" in checkpoint:
             agent.alpha = checkpoint["alpha"]
 
         return agent

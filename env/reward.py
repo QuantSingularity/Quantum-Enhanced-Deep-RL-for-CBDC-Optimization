@@ -45,8 +45,8 @@ class RewardFunction:
 
         Args:
             funding_cost: Cost of funding
-            lcr_penalty: Penalty for LCR violation
-            shortfall_penalty: Penalty for liquidity shortfall
+            lcr_penalty: Penalty for LCR violation (already weighted by constraints)
+            shortfall_penalty: Penalty for liquidity shortfall (already weighted)
             liquidity: Current liquidity
             target_liquidity: Target liquidity level
 
@@ -56,9 +56,8 @@ class RewardFunction:
         # Negative cost (we want to minimize)
         cost_term = -self.cost_weight * funding_cost
 
-        # Penalties
-        lcr_term = -self.lcr_penalty_weight * lcr_penalty
-        shortfall_term = -self.shortfall_penalty_weight * shortfall_penalty
+        lcr_term = -lcr_penalty
+        shortfall_term = -shortfall_penalty
 
         # Stability bonus for maintaining buffer
         if liquidity > 0:

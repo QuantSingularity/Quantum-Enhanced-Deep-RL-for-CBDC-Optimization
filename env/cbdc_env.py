@@ -141,7 +141,7 @@ class CBDCLiquidityEnv(gym.Env):
             dtype=np.float32,
         )
 
-        # State variables
+        # State variables (initialized before reset so _get_observation works)
         self.liquidity = initial_liquidity
         self.liabilities = initial_liabilities
         self.capital = initial_capital
@@ -167,9 +167,11 @@ class CBDCLiquidityEnv(gym.Env):
         options: Optional[Dict[str, Any]] = None,
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """Reset environment to initial state."""
+
+        super().reset(seed=seed)
+
         if seed is not None:
             self._seed = seed
-            np.random.seed(seed)
 
         # Reset dynamics
         self.dynamics.reset(seed=seed)
@@ -372,9 +374,11 @@ class CBDCLiquidityEnv(gym.Env):
             "volatility": self.dynamics.current_volatility,
         }
 
-    def render(self, mode: str = "human") -> None:
-        """Render environment state."""
-        if mode == "human":
+    def render(self) -> None:
+        """Render environment state.
+        
+        """
+        if self.render_mode == "human":
             print(f"Step: {self.current_step}")
             print(f"Liquidity: ${self.liquidity:,.2f}")
             print(f"Liabilities: ${self.liabilities:,.2f}")

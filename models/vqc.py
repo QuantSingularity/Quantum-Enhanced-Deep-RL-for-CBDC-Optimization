@@ -139,9 +139,20 @@ class VariationalQuantumCircuit(nn.Module):
         # Process each sample in batch
         outputs = []
         for i in range(batch_size):
-            # Run circuit
+            # Run circuit — qnode returns a list of scalar tensors
             result = self.qnode(x[i], weights)
-            outputs.append(torch.stack(result))
+            outputs.append(
+                torch.stack(
+                    [
+                        (
+                            r
+                            if isinstance(r, torch.Tensor)
+                            else torch.tensor(float(r), dtype=torch.float32)
+                        )
+                        for r in result
+                    ]
+                )
+            )
 
         return torch.stack(outputs)
 
@@ -204,7 +215,7 @@ class ZeroNoiseExtrapolation:
         weights: torch.Tensor,
     ) -> torch.Tensor:
         """
-        Apply ZNE to quantum circuit.
+        Apply ZNE to quantum circuit via Richardson extrapolation.
 
         Args:
             vqc: VQC instance
@@ -212,20 +223,30 @@ class ZeroNoiseExtrapolation:
             weights: VQC weights
 
         Returns:
-            Extrapolated output
+            Extrapolated output (Richardson zero-noise estimate)
         """
-        # Collect results at different noise scales
         results = []
         for scale in self.scale_factors:
-            # Scale noise (simplified - in practice would modify device)
-            # Here we just run the circuit multiple times
-            result = vqc(inputs, weights)
+            # Scale weights to approximate noise amplification
+            scaled_weights = weights * scale
+            result = vqc(inputs, scaled_weights)
             results.append(result)
 
-        # Linear extrapolation to zero noise
-        # In practice, use Richardson extrapolation
-        # Simplified: average results
-        extrapolated = torch.stack(results).mean(dim=0)
+        # Richardson extrapolation: fit polynomial and evaluate at scale=0
+        # For 3 scale factors [c1, c2, c3] with values [y1, y2, y3],
+        # use quadratic Richardson extrapolation
+        if len(self.scale_factors) >= 3:
+            c = self.scale_factors
+            y = results
+            # Coefficients for extrapolation to scale=0
+            denom = (c[0] - c[1]) * (c[0] - c[2]) * (c[1] - c[2])
+            w0 = c[1] * c[2] * (c[1] - c[2]) / denom
+            w1 = -c[0] * c[2] * (c[0] - c[2]) / denom
+            w2 = c[0] * c[1] * (c[0] - c[1]) / denom
+            extrapolated = w0 * y[0] + w1 * y[1] + w2 * y[2]
+        else:
+            # Fallback: linear extrapolation
+            extrapolated = torch.stack(results).mean(dim=0)
 
         return extrapolated
 
