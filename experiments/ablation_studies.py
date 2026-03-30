@@ -288,7 +288,7 @@ def generate_ablation_plots(df: pd.DataFrame, results_dir: Path):
     rewards = df["mean_reward"]
 
     colors = ["green", "orange", "orange", "orange", "red"]
-    bars = ax.barh(configs, rewards, color=colors, alpha=0.7)
+    ax.barh(configs, rewards, color=colors, alpha=0.7)
 
     ax.set_xlabel("Mean Reward", fontsize=12)
     ax.set_title(
@@ -305,7 +305,7 @@ def generate_ablation_plots(df: pd.DataFrame, results_dir: Path):
     fig, ax = plt.subplots(figsize=(12, 6))
 
     costs = df["mean_funding_cost"]
-    bars = ax.barh(configs, costs, color=colors, alpha=0.7)
+    ax.barh(configs, costs, color=colors, alpha=0.7)
 
     ax.set_xlabel("Mean Funding Cost ($)", fontsize=12)
     ax.set_title(

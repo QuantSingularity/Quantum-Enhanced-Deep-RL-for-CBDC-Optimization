@@ -179,7 +179,7 @@ def train_qsac(
                 if eval_metrics["mean_reward"] > best_eval_reward:
                     best_eval_reward = eval_metrics["mean_reward"]
                     agent.save(str(checkpoint_dir / "qsac_best.pt"))
-                    print(f"  New best model saved!")
+                    print("  New best model saved!")
 
             # Save checkpoint
             if (step + 1) % default_config["save_freq"] == 0:
