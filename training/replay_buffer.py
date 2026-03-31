@@ -2,9 +2,10 @@
 Experience replay buffer for SAC.
 """
 
+from typing import Tuple
+
 import numpy as np
 import torch
-from typing import Tuple
 
 
 class ReplayBuffer:

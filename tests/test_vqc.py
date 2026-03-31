@@ -2,10 +2,11 @@
 Unit tests for Variational Quantum Circuit.
 """
 
+import numpy as np
 import pytest
 import torch
-import numpy as np
-from models.vqc import VariationalQuantumCircuit, HybridQuantumClassical
+
+from models.vqc import HybridQuantumClassical, VariationalQuantumCircuit
 
 
 def test_vqc_creation():

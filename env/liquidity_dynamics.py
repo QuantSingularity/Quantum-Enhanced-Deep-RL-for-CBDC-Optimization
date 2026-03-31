@@ -3,8 +3,9 @@ Liquidity dynamics models for CBDC environment.
 Implements stochastic processes for inflows, outflows, and CBDC shocks.
 """
 
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 
 
 class LiquidityDynamics:

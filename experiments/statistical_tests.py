@@ -4,20 +4,21 @@ Statistical tests for comparing QSAC, Classical SAC, and Rule-based methods.
 
 import os
 import sys
-import yaml
+from pathlib import Path
+from typing import Dict
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from scipy import stats
-from typing import Dict
-import matplotlib.pyplot as plt
 import seaborn as sns
+import yaml
+from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from baselines.rule_based_policy import RuleBasedPolicy
 from env.cbdc_env import CBDCLiquidityEnv
 from models.sac_agent import SACAgent
-from baselines.rule_based_policy import RuleBasedPolicy
 
 
 def collect_episode_data(agent, env, n_episodes: int = 100, use_quantum: bool = False):

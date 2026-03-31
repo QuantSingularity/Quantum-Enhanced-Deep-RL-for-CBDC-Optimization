@@ -2,8 +2,9 @@
 Regulatory constraints for CBDC liquidity environment.
 """
 
-import numpy as np
 from typing import Dict, Tuple
+
+import numpy as np
 
 
 class LiquidityConstraints:

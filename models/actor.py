@@ -2,13 +2,13 @@
 Actor network for SAC.
 """
 
+from typing import Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Normal
-import numpy as np
-from typing import Tuple
-
 
 LOG_STD_MIN = -20
 LOG_STD_MAX = 2

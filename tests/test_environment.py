@@ -2,8 +2,9 @@
 Unit tests for CBDC environment.
 """
 
-import pytest
 import numpy as np
+import pytest
+
 from env.cbdc_env import CBDCLiquidityEnv
 
 

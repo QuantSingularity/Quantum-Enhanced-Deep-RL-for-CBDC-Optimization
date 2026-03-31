@@ -3,11 +3,12 @@ Variational Quantum Circuit (VQC) for quantum critic.
 Implements parameterized quantum circuit with PennyLane.
 """
 
+from typing import List, Optional
+
 import numpy as np
+import pennylane as qml
 import torch
 import torch.nn as nn
-import pennylane as qml
-from typing import List, Optional
 
 
 class VariationalQuantumCircuit(nn.Module):

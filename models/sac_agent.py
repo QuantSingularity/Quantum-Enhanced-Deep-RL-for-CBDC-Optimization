@@ -2,12 +2,13 @@
 Soft Actor-Critic (SAC) agent implementation.
 """
 
+from copy import deepcopy
+from typing import Dict, Optional, Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
-from typing import Dict, Tuple, Optional
-from copy import deepcopy
 
 from models.actor import Actor
 from models.critic_classical import Critic

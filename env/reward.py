@@ -2,8 +2,9 @@
 Reward function for CBDC liquidity management.
 """
 
-import numpy as np
 from typing import Dict
+
+import numpy as np
 
 
 class RewardFunction:

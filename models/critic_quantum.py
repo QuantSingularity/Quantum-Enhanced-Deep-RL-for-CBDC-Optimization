@@ -3,11 +3,12 @@ Quantum-enhanced critic network for SAC.
 Integrates VQC into critic architecture.
 """
 
+from typing import Tuple
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-from typing import Tuple
 
 from models.vqc import HybridQuantumClassical
 
