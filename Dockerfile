@@ -40,7 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ── Stage 2: deps ─────────────────────────────────────────────────────────────
 FROM base AS deps
 
-# Copy only requirements first — Docker caches this layer until requirements change
+# Copy only requirements first - Docker caches this layer until requirements change
 COPY code/requirements.txt ./code/requirements.txt
 
 RUN pip install --upgrade pip && \
@@ -67,7 +67,7 @@ USER appuser
 # Expose MLflow tracking server port
 EXPOSE 5000
 
-# Health check — verify the environment can be instantiated
+# Health check - verify the environment can be instantiated
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD python -c "from env.cbdc_env import CBDCLiquidityEnv; CBDCLiquidityEnv()" || exit 1
 
